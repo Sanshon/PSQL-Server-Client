@@ -1,0 +1,133 @@
+/*1*/
+select name from passenger;
+
+/*2*/
+select name from company;
+
+/*3*/
+select * 
+   from trip 
+   where town_from = 'Moscow';
+
+/*4*/
+select name 
+   from passenger 
+   where name like '%man';
+
+/*5*/
+select count(*) as count 
+   from trip 
+   where plane = 'TU-134';
+
+/*6*/
+select distinct name 
+   from company 
+   join trip 
+     on company.id=trip.company 
+   where plane = 'Boeing';
+
+/*7*/
+select distinct plane 
+   from trip 
+   where town_to = 'Moscow';
+
+/*8*/
+select town_to, (time_in - time_out) as flight_time
+   from trip
+   where town_from = 'Paris';
+
+/*9*/
+select distinct name
+   from company
+   join trip
+     on company.id = trip.company
+   where town_from = 'Vladivostok';
+
+/*10*/
+select * from trip
+   where time_out
+     between
+       '1900-01-01 10:00:00'
+     and
+       '1900-01-01 14:00:00';
+
+/*11*/
+select name
+   from passenger
+   where length(name) = (select max(length(name)) from passenger);
+
+/*12*/
+select trip, count(passenger) as count
+   from pass_in_trip
+   group by trip;
+
+/*13*/
+select name
+   from passenger
+   group by name
+   having count(name) > 1;
+
+/*14*/
+select distinct town_to
+   from trip
+   join pass_in_trip
+     on trip.id = pass_in_trip.trip
+   join passenger
+     on pass_in_trip.passenger = passenger.id
+   where name = 'Bruce Willis';
+
+/*15*/
+select time_in
+   from trip
+   join pass_in_trip
+     on trip.id = pass_in_trip.trip
+   join passenger
+     on pass_in_trip.passenger = passenger.id
+   where name = 'Steve Martin'
+     and town_to = 'London';
+
+/*16*/
+select passenger.name, count(*) as count
+   from passenger
+   join pass_in_trip
+     on passenger.id = pass_in_trip.passenger
+   group by passenger.name
+   having count(trip) > 0
+   order by count(trip) desc, name;
+
+/*17*/
+select count(*) as count
+   from trip
+   where town_from = 'Rostov' and town_to = 'Moscow';
+
+/*18*/
+select name
+   from passenger
+   join pass_in_trip
+     on passenger.id = pass_in_trip.passenger
+   join trip
+     on pass_in_trip.trip = trip.id
+   where trip.town_to = 'Moscow' 
+     and trip.plane = 'TU-134';
+
+/*19*/
+create view for_delete as
+select company, count(*) as count
+   from trip 
+   group by company
+   order by count, company;
+delete 
+   from company
+   where company.id = (select min(for_delete.count) from for_delete);
+select * from company;
+
+/*20*/
+delete 
+   from trip
+   where trip.id = (select trip.id
+     from trip
+     join (select town_to, time_in 
+            from trip 
+            where town_to = 'Moscow') as var
+       on trip.town_from = var.town_to 
+         and trip.time_out > var.time_in);

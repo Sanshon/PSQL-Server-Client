@@ -1,0 +1,15 @@
+create or replace procedure public.table_count
+(
+   in table_name character varying,
+   inout number_of_lines int
+) as
+$$
+begin
+   execute 'select count(*) from ' || quote_ident(table_name) into number_of_lines;
+end;
+$$
+language plpgsql;
+
+alter procedure public.table_count(character varying, int)
+   owner to postgres;
+

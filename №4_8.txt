@@ -1,0 +1,14 @@
+create or replace procedure public.trip_after_date
+(
+   in date timestamp,
+   inout trip_after text[][]
+) as
+$$
+begin
+   execute 'select * from trip where trip.time_out > ' || quote_ident(date) into trip_after;
+end;
+$$
+language plpgsql;
+
+alter procedure public.table_count(character varying, int)
+   owner to postgres;
